@@ -146,12 +146,125 @@ Translate the entire note into **Simplified Chinese**. Do this yourself inline �
 - Page body: the full Chinese note content
 - If RedBook style, add `redbook` to the Tags.
 
-### 6. Confirm
+### 6. RedBook Post Assets (if `redbook` flag)
+
+When the `redbook` flag is set, generate posting-ready assets **after** saving the Obsidian + Notion notes.
+Run substeps 6a and 6b concurrently where possible.
+
+**Output folder:** Create a dated folder for all RedBook assets:
+`C:/QY/Obsidian/TrainingMats/RedBook/{YYYY-MM-DD} - {Short Title}/`
+
+All RedBook assets (post description, slides, infographic) go into this folder.
+
+#### 6a. Generate RedBook Post Description
+
+Using the Chinese note content, write a RedBook post description optimized for engagement:
+
+**Structure:**
+- **Hook** (first 50 chars): specific, curiosity-driven opening that makes users stop scrolling
+- **Body** (500-700 chars total): 2-3 sentence paragraphs, use emoji as functional bullet points (✅ 💡 🔍 ✨ ▶️)
+- **CTA**: encourage saves and follows — e.g. "觉得有用记得收藏❤️关注我获取更多干货！"
+- **Hashtags**: 3-5 targeted Chinese hashtags at the end (use native Chinese terms, not translated English tags)
+
+**Guidelines:**
+- Use platform-native phrases: 实用、亲测有效、干货、避坑
+- Keep paragraphs to 2-3 sentences max for scannability
+- Lead with the value proposition, not a generic intro
+- Total length: under 1000 Chinese characters
+
+**Save to:** `C:/QY/Obsidian/TrainingMats/RedBook/{YYYY-MM-DD} - {Short Title}/post-description.md` with this format:
+
+```markdown
+# {Chinese Title} - RedBook Post
+
+> **Source Note:** [[{Clean Title} - CN - Training]]
+> **Date:** {YYYY-MM-DD}
+
+---
+
+## 小红书文案 (Post Description)
+
+{The full post description text, ready to copy-paste into RedBook}
+
+---
+
+## 标签 (Hashtags)
+
+{Hashtags listed individually for easy copying}
+```
+
+#### 6b. Generate NotebookLM Visual Assets
+
+Use NotebookLM to generate visual content from the Chinese note. Run these steps:
+
+1. **Create a notebook:** Call `mcp__notebooklm-mcp__notebook_create` with a title like `"RedBook - {Chinese Title}"`
+2. **Add the CN note as source:** Call `mcp__notebooklm-mcp__source_add` with:
+   - `source_type`: `"file"`
+   - `file_path`: the CN Obsidian note path (`C:/QY/Obsidian/TrainingMats/{Clean Title} - CN - Training.md`)
+   - `wait`: `true`
+3. **Generate slide deck + infographic in parallel:** Call `mcp__notebooklm-mcp__studio_create` twice:
+   - **Slide deck:**
+     - `artifact_type`: `"slide_deck"`
+     - `slide_format`: `"detailed_deck"`
+     - `language`: `"zh"`
+     - `focus_prompt`: describe the RedBook knowledge card style — one key concept per slide, actionable takeaways, engaging tone
+     - `confirm`: `true`
+   - **Infographic (portrait):**
+     - `artifact_type`: `"infographic"`
+     - `orientation`: `"portrait"`
+     - `detail_level`: `"standard"`
+     - `language`: `"zh"`
+     - `focus_prompt`: summarize the key framework and data points, visual knowledge card style for RedBook
+     - `confirm`: `true`
+4. **Poll for completion:** Call `mcp__notebooklm-mcp__studio_status` until both artifacts are completed
+5. **Download artifacts:**
+   - Slide deck → `{output folder}/slides.pdf` (temporary)
+   - Infographic → `{output folder}/infographic.png`
+6. **Convert slides to RedBook-ready PNGs** (RedBook only accepts images, not PDF):
+   ```python
+   import fitz
+   from PIL import Image, ImageDraw
+
+   CANVAS_W, CANVAS_H = 1242, 1660  # RedBook 3:4
+   BG_COLOR = (255, 251, 240)       # warm cream
+   ACCENT_COLOR = (230, 200, 77)    # gold
+
+   doc = fitz.open("{output folder}/slides.pdf")
+   for i, page in enumerate(doc):
+       pix = page.get_pixmap(dpi=200)
+       slide = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+       canvas = Image.new("RGB", (CANVAS_W, CANVAS_H), BG_COLOR)
+       draw = ImageDraw.Draw(canvas)
+       draw.rectangle([0, 0, CANVAS_W, 8], fill=ACCENT_COLOR)
+       draw.rectangle([0, CANVAS_H-8, CANVAS_W, CANVAS_H], fill=ACCENT_COLOR)
+       padding = 40
+       ratio = (CANVAS_W - padding*2) / slide.width
+       resized = slide.resize((int(slide.width*ratio), int(slide.height*ratio)), Image.LANCZOS)
+       canvas.paste(resized, ((CANVAS_W-resized.width)//2, (CANVAS_H-resized.height)//2))
+       canvas.save(f"{output folder}/slide-{i+1:02d}.png", quality=95)
+   ```
+   Then delete the PDF: `rm "{output folder}/slides.pdf"`
+7. **Open output folder** for review: `start "" "{output folder}"`
+
+**Image size notes for RedBook:**
+- RedBook prefers **3:4** (1242x1660px) or **square** (1080x1080) images
+- **9:16** (portrait, like Stories) is also supported and fills the feed well
+- NotebookLM infographic (portrait) outputs ~1536x2752 (≈9:16) — usable directly on RedBook
+- NotebookLM slides output 16:9 landscape — less ideal for RedBook's vertical feed, but still supported
+- The **infographic is the primary RedBook visual asset**; slides serve as supplementary or can be cropped
+
+### 7. Confirm
 
 Tell the user:
 - The English note has been saved (Obsidian path)
 - If CN: the Chinese note has been saved (Obsidian path + Notion link)
 - A brief summary of what was extracted
+- If RedBook: additionally report:
+  - Output folder path
+  - RedBook post description saved — ready to copy-paste
+  - Infographic PNG (portrait, primary RedBook visual — 9:16 ratio, usable directly)
+  - Slide deck PDF (12 slides, 16:9 landscape — supplementary, may need cropping for RedBook)
+  - NotebookLM notebook link (for further edits/regeneration)
 
 ## Notion Database Reference (RedBook content only)
 

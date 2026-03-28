@@ -25,3 +25,9 @@ and structured Content sections.
 - youtube-transcript-api
 - yt-dlp (fallback for transcripts)
 - beautifulsoup4
+
+## MCP Integrations
+
+- **Notion** — Chinese/RedBook notes are saved to the Training Materials database
+- **NotebookLM** — When `redbook` flag is used, the CN note is fed to NotebookLM
+  to generate a slide deck (PDF) and portrait infographic (PNG) for RedBook posting

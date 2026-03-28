@@ -7,7 +7,27 @@
       "Bash(python scripts/get_transcript.py \"https://www.youtube.com/watch?v=TUKYbUIXLOE\")",
       "Bash(python scripts/get_transcript.py \"https://www.youtube.com/watch?v=D8RFe2_kOlA\")",
       "mcp__claude_ai_Notion__notion-create-database",
-      "mcp__claude_ai_Notion__notion-create-pages"
+      "mcp__claude_ai_Notion__notion-create-pages",
+      "Bash(gh repo:*)",
+      "WebSearch",
+      "WebFetch(domain:www.insmind.com)",
+      "WebFetch(domain:hashmeta.com)",
+      "WebFetch(domain:prizmdigital.co.nz)",
+      "WebFetch(domain:www.alluatech.com)",
+      "WebFetch(domain:cardplanet.me)",
+      "mcp__claude_ai_Canva__request-outline-review",
+      "Bash(start \"\" \"C:/tmp/redbook-slides-preview.html\")",
+      "mcp__claude_ai_Canva__generate-design",
+      "mcp__notebooklm-mcp__notebook_create",
+      "Bash(nlm login:*)",
+      "mcp__notebooklm-mcp__source_add",
+      "mcp__notebooklm-mcp__download_artifact",
+      "Bash(start \"\" \"C:/tmp/redbook-slides.pdf\")",
+      "Bash(start \"\" \"C:/tmp/redbook-infographic.png\")",
+      "Bash(python -c \"from PIL import Image; img = Image.open\\(''C:/tmp/redbook-infographic.png''\\); print\\(f''Infographic: {img.size[0]}x{img.size[1]}, ratio: {img.size[0]/img.size[1]:.2f}''\\)\")",
+      "Bash(python -c \"import subprocess; result = subprocess.run\\([''python'', ''-m'', ''pymupdf'', ''show'', ''C:/tmp/redbook-slides.pdf''], capture_output=True, text=True\\); print\\(result.stdout or result.stderr\\)\")",
+      "Bash(python -c \":*)",
+      "Bash(start \"\" \"C:/QY/Obsidian/TrainingMats/RedBook/2026-03-29 - Daniel Priestley Personal Brand\")"
     ]
   }
 }
